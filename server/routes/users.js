@@ -183,15 +183,16 @@ router.patch('/users/admin/:userId', (req, res) => {
       if (row.is_admin === 0) {
         return res.sendStatus(401)
       }
-    })
 
-    db.run('UPDATE users SET is_admin = ? WHERE id = ?', [req.body.isAdmin ? 1 : 0, req.params.userId], (err) => {
-      if (err) {
-        logger.error(err)
-        return res.sendStatus(500)
-      } else {
-        return res.sendStatus(200)
-      }
+
+      db.run('UPDATE users SET is_admin = ? WHERE id = ?', [req.body.isAdmin ? 1 : 0, req.params.userId], (err) => {
+        if (err) {
+          logger.error(err)
+          return res.sendStatus(500)
+        } else {
+          return res.sendStatus(200)
+        }
+      })
     })
   })
 })
@@ -211,15 +212,15 @@ router.patch('/users/upload/:userId', (req, res) => {
       if (row.is_admin === 0) {
         return res.sendStatus(401)
       }
-    })
 
-    db.run('UPDATE users SET can_upload = ? WHERE id = ?', [req.body.canUpload ? 1 : 0, req.params.userId], (err) => {
-      if (err) {
-        logger.error(err)
-        return res.sendStatus(500)
-      } else {
-        return res.sendStatus(200)
-      }
+      db.run('UPDATE users SET can_upload = ? WHERE id = ?', [req.body.canUpload ? 1 : 0, req.params.userId], (err) => {
+        if (err) {
+          logger.error(err)
+          return res.sendStatus(500)
+        } else {
+          return res.sendStatus(200)
+        }
+      })
     })
   })
 })
@@ -273,25 +274,46 @@ router.delete('/users/:userId', (req, res) => {
     return res.sendStatus(401)
   }
 
-  db.serialize(() => {
-    db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], (err, row) => {
-      if (err) {
-        logger.error(err)
-        return res.sendStatus(500)
-      }
+  db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], (err, row) => {
+    if (err) {
+      logger.error(err)
+      return res.sendStatus(500)
+    }
 
-      if (row.is_admin === 0) {
-        return res.sendStatus(401)
-      }
-    })
-
-    db.run('DELETE FROM users WHERE id = ?', [req.params.userId], (err) => {
-      if (err) {
-        logger.error(err)
-        return res.sendStatus(500)
-      } else {
-        return res.sendStatus(200)
-      }
+    if (row.is_admin === 0) {
+      return res.sendStatus(401)
+    }
+    
+    db.serialize(() => {
+      db.run('DELETE FROM profiles_samples WHERE profile IN (SELECT id FROM profiles WHERE user = ?)', [req.params.userId], (err) => {
+        if (err) {
+          logger.error(err)
+          return res.sendStatus(500)
+        }
+      })
+      
+      db.run('DELETE FROM profiles WHERE user = ?', [req.params.userId], (err) => {
+        if (err) {
+          logger.error(err)
+          return res.sendStatus(500)
+        }
+      })
+      
+      db.run('DELETE FROM samples WHERE user = ?', [req.params.userId], (err) => {
+        if (err) {
+          logger.error(err)
+          return res.sendStatus(500)
+        }
+      })
+      
+      db.run('DELETE FROM users WHERE id = ?', [req.params.userId], (err) => {
+        if (err) {
+          logger.error(err)
+          return res.sendStatus(500)
+        } else {
+          return res.sendStatus(200)
+        }
+      })
     })
   })
 })

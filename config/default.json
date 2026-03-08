@@ -7,6 +7,7 @@
     "logFile": "log/noisedash.log",
     "tls": false,
     "tlsKey": "certs/key.pem",
-    "tlsCert": "certs/cert.pem"
+    "tlsCert": "certs/cert.pem",
+    "disableSecurity": false
   }
 }

@@ -11,6 +11,8 @@ const authRouter = require('./routes/auth')
 const usersRouter = require('./routes/users')
 const profilesRouter = require('./routes/profiles')
 const samplesRouter = require('./routes/samples')
+const db = require('./db')
+const logger = require('./logger')
 const app = express()
 const fileStoreOptions = {
   path: config.get('Server.sessionFileStorePath')
@@ -48,6 +50,20 @@ app.use((req, res, next) => {
 })
 app.use(passport.initialize())
 app.use(passport.authenticate('session'))
+
+if (config.get('Server.disableSecurity')) {
+  app.use((req, res, next) => {
+    if (!req.user) {
+      db.get('SELECT id FROM users WHERE username = ?', ['_guest'], (err, row) => {
+        if (err || !row) return next()
+        req.user = { id: row.id.toString(), username: '_guest' }
+        next()
+      })
+    } else {
+      next()
+    }
+  })
+}
 
 // Define routes
 app.use('/', authRouter)

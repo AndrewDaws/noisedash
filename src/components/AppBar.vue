@@ -40,7 +40,7 @@
             </v-list-item-title>
           </v-list-item>
           <v-list-item
-            v-if="isAdmin"
+            v-if="isAdmin && !disableSecurity"
             @click="admin"
           >
             <v-list-item-icon>
@@ -51,6 +51,7 @@
             </v-list-item-title>
           </v-list-item>
           <v-list-item
+            v-if="!disableSecurity"
             :disabled="!loggedIn"
             @click="logout"
           >

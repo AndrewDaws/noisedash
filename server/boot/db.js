@@ -1,5 +1,6 @@
 const db = require('../db')
 const logger = require('../logger')
+const config = require('config')
 
 module.exports = function () {
   db.serialize(() => {
@@ -97,6 +98,17 @@ module.exports = function () {
                   db.run('PRAGMA user_version = 4')
                 }
               })
+          }
+          
+          if (config.get('Server.disableSecurity')) {
+            const defaultPreferences = '{"accentColor":{"alpha":1,"hex":"#607D8B","hexa":"#607D8BFF","hsla":{"h":200,"s":18,"l":46,"a":1},"hsva":{"h":200,"s":31,"v":55,"a":1},"hue":200,"rgba":{"r":96,"g":125,"b":139,"a":1}}}'
+            db.run(`INSERT OR IGNORE INTO users (username, hashed_password, salt, name, is_admin, dark_mode, can_upload, preferences) VALUES ('_guest', '', '', 'Guest', 1, 0, 1, ?)`,
+              [defaultPreferences],
+              (err) => {
+              if (err)
+                logger.error(err)
+              }
+            )
           }
         })
       }

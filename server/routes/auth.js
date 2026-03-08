@@ -1,5 +1,6 @@
 const express = require('express')
 const passport = require('passport')
+const config = require('config')
 const db = require('../db')
 const router = express.Router()
 const logger = require('../logger')
@@ -59,6 +60,10 @@ router.get('/setup', (req, res) => {
       return res.json({ setup: false })
     }
   })
+})
+
+router.get('/config', (req, res) => {
+  res.json({ disableSecurity: config.get('Server.disableSecurity') })
 })
 
 module.exports = router

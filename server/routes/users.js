@@ -184,7 +184,6 @@ router.patch('/users/admin/:userId', (req, res) => {
         return res.sendStatus(401)
       }
 
-
       db.run('UPDATE users SET is_admin = ? WHERE id = ?', [req.body.isAdmin ? 1 : 0, req.params.userId], (err) => {
         if (err) {
           logger.error(err)
@@ -283,7 +282,7 @@ router.delete('/users/:userId', (req, res) => {
     if (row.is_admin === 0) {
       return res.sendStatus(401)
     }
-    
+
     db.serialize(() => {
       db.run('DELETE FROM profiles_samples WHERE profile IN (SELECT id FROM profiles WHERE user = ?)', [req.params.userId], (err) => {
         if (err) {
@@ -291,21 +290,21 @@ router.delete('/users/:userId', (req, res) => {
           return res.sendStatus(500)
         }
       })
-      
+
       db.run('DELETE FROM profiles WHERE user = ?', [req.params.userId], (err) => {
         if (err) {
           logger.error(err)
           return res.sendStatus(500)
         }
       })
-      
+
       db.run('DELETE FROM samples WHERE user = ?', [req.params.userId], (err) => {
         if (err) {
           logger.error(err)
           return res.sendStatus(500)
         }
       })
-      
+
       db.run('DELETE FROM users WHERE id = ?', [req.params.userId], (err) => {
         if (err) {
           logger.error(err)

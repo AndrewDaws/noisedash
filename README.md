@@ -22,10 +22,7 @@ Self-hostable web tool for generating ambient noises
 Requires docker and docker-compose
 
 * Download the provided [docker-compose.yml file](https://github.com/kaythomas0/noisedash/blob/main/docker-compose.yml)
-* In the same directory as the docker-compose file, created a folder called `config`, and inside it, put the provided [config file](https://github.com/kaythomas0/noisedash/blob/main/config/default.json)
-  * `maxSampleSize` is in bytes - 10GB by default
-  * Keep `tls` as `false` if using an external web server like nginx
-  * `production.json` exists in the source code and is left empty intentionally for the reason outlined here: https://github.com/node-config/node-config/wiki/Strict-Mode#node_env-value-of-node_env-did-not-match-any-deployment-config-file-names=
+* In the same directory as the docker-compose file, created a folder called `config`, and inside it, put the provided [config file](https://github.com/kaythomas0/noisedash/blob/main/config/default.json). Please reference the configuration section of this README for documentation on config options
 * Edit the config file to your preference
 * Bring the container up:
 
@@ -81,6 +78,20 @@ npm run server-prod
 ```
 
 * Proceed to the URL where it's deployed and register your first user
+
+# Configuration
+
+* `listeningPort`: The port the noisedash server will listen on. If you modify this, you need to modify your docker file appropriately (if applicable)
+* `sessionFileStorePath`: The path to the directory where login-session info is saved
+* `sampleUploadPath`: The path to the directory where user-uploaded samples are saved. If you modify this, you need to modify your docker file appropriately (if applicable)
+* `maxSampleSize`: The maximum size of a single sample a user can upload (in bytes). 10GB by default
+* `logFile`: The path to the directory where server logs are saved
+* `tls`: Set to true to enable the server's built-in tls option. **Keep this as false if using an external web server (like nginx)**
+* `tlsKey`: If `tls` is set to true, this is the path to your tls key
+* `tlsCert`: If `tls` is set to true, this is the path to your tls cert
+* `disableSecurity`: **Do not set to true for public facing instances**. Changes the behavior of this app to remove all login/authentication/security options. If this is set to true, you will immediately be taken to the home page on page load. No logins, no managing multiple users, etc. This could be suitable for you if you're not exposing your instance publically and you only plan on having one user
+
+Note: `production.json` exists in the source code and is left empty intentionally for the reason outlined here: https://github.com/node-config/node-config/wiki/Strict-Mode#node_env-value-of-node_env-did-not-match-any-deployment-config-file-names=
 
 # Contributing
 

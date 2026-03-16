@@ -12,7 +12,6 @@ const usersRouter = require('./routes/users')
 const profilesRouter = require('./routes/profiles')
 const samplesRouter = require('./routes/samples')
 const db = require('./db')
-const logger = require('./logger')
 const app = express()
 const fileStoreOptions = {
   path: config.get('Server.sessionFileStorePath')

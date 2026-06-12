@@ -84,7 +84,7 @@ npm run server-prod
 * `listeningPort`: The port the noisedash server will listen on. If you modify this, you need to modify your docker file appropriately (if applicable)
 * `sessionFileStorePath`: The path to the directory where login-session info is saved
 * `sampleUploadPath`: The path to the directory where user-uploaded samples are saved. If you modify this, you need to modify your docker file appropriately (if applicable)
-* `maxSampleSize`: The maximum size of a single sample a user can upload (in bytes). 10GB by default
+* `maxSampleSize`: The maximum size of a single sample a user can upload (in bytes). 10GiB by default
 * `logFile`: The path to the directory where server logs are saved
 * `tls`: Set to true to enable the server's built-in tls option. **Keep this as false if using an external web server (like nginx)**
 * `tlsKey`: If `tls` is set to true, this is the path to your tls key

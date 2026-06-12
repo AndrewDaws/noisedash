@@ -170,48 +170,80 @@ router.put('/profiles/:profileId', (req, res) => {
       if (row.user.toString() !== req.user.id) {
         return res.sendStatus(401)
       }
+    })
 
-      db.run(`UPDATE profiles SET
-        timer_enabled = ?,
-        duration = ?,
-        volume = ?,
-        noise_color = ?,
-        filter_enabled = ?,
-        filter_type = ?,
-        filter_cutoff = ?,
-        lfo_filter_cutoff_enabled = ?,
-        lfo_filter_cutoff_frequency = ?,
-        lfo_filter_cutoff_low = ?,
-        lfo_filter_cutoff_high = ?,
-        tremolo_enabled = ?,
-        tremolo_frequency = ?,
-        tremolo_depth = ?
-        WHERE id = ?`, [
-        req.body.isTimerEnabled ? 1 : 0,
-        req.body.duration,
-        req.body.volume,
-        req.body.noiseColor,
-        req.body.isFilterEnabled ? 1 : 0,
-        req.body.filterType,
-        req.body.filterCutoff,
-        req.body.isLFOFilterCutoffEnabled ? 1 : 0,
-        req.body.lfoFilterCutoffFrequency,
-        req.body.lfoFilterCutoffLow,
-        req.body.lfoFilterCutoffHigh,
-        req.body.isTremoloEnabled ? 1 : 0,
-        req.body.tremoloFrequency,
-        req.body.tremoloDepth,
-        req.params.profileId
-      ],
-      (err) => {
-        if (err) {
-          logger.error(err)
-          return res.sendStatus(500)
-        }
+    db.run(`UPDATE profiles SET
+      timer_enabled = ?,
+      duration = ?,
+      volume = ?,
+      noise_color = ?,
+      filter_enabled = ?,
+      filter_type = ?,
+      filter_cutoff = ?,
+      lfo_filter_cutoff_enabled = ?,
+      lfo_filter_cutoff_frequency = ?,
+      lfo_filter_cutoff_low = ?,
+      lfo_filter_cutoff_high = ?,
+      tremolo_enabled = ?,
+      tremolo_frequency = ?,
+      tremolo_depth = ?
+      WHERE id = ?`, [
+      req.body.isTimerEnabled ? 1 : 0,
+      req.body.duration,
+      req.body.volume,
+      req.body.noiseColor,
+      req.body.isFilterEnabled ? 1 : 0,
+      req.body.filterType,
+      req.body.filterCutoff,
+      req.body.isLFOFilterCutoffEnabled ? 1 : 0,
+      req.body.lfoFilterCutoffFrequency,
+      req.body.lfoFilterCutoffLow,
+      req.body.lfoFilterCutoffHigh,
+      req.body.isTremoloEnabled ? 1 : 0,
+      req.body.tremoloFrequency,
+      req.body.tremoloDepth,
+      req.params.profileId
+    ],
+    (err) => {
+      if (err) {
+        logger.error(err)
+        return res.sendStatus(500)
+      }
 
-        db.serialize(() => {
-          db.run('DELETE FROM profiles_samples WHERE profile = ?', [
-            req.params.profileId
+      db.serialize(() => {
+        db.run('DELETE FROM profiles_samples WHERE profile = ?', [
+          req.params.profileId
+        ],
+        (err) => {
+          if (err) {
+            logger.error(err)
+            return res.sendStatus(500)
+          }
+        })
+
+        req.body.samples.forEach(s => {
+          db.run(`INSERT INTO profiles_samples(
+            profile,
+            sample,
+            volume,
+            reverb_enabled,
+            reverb_pre_delay,
+            reverb_decay,
+            reverb_wet,
+            playback_mode,
+            sporadic_min,
+            sporadic_max)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+            req.params.profileId,
+            s.id,
+            s.volume,
+            s.reverbEnabled,
+            s.reverbPreDelay,
+            s.reverbDecay,
+            s.reverbWet,
+            s.playbackMode,
+            s.sporadicMin,
+            s.sporadicMax
           ],
           (err) => {
             if (err) {
@@ -219,41 +251,9 @@ router.put('/profiles/:profileId', (req, res) => {
               return res.sendStatus(500)
             }
           })
-
-          req.body.samples.forEach(s => {
-            db.run(`INSERT INTO profiles_samples(
-              profile,
-              sample,
-              volume,
-              reverb_enabled,
-              reverb_pre_delay,
-              reverb_decay,
-              reverb_wet,
-              playback_mode,
-              sporadic_min,
-              sporadic_max)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
-              req.params.profileId,
-              s.id,
-              s.volume,
-              s.reverbEnabled,
-              s.reverbPreDelay,
-              s.reverbDecay,
-              s.reverbWet,
-              s.playbackMode,
-              s.sporadicMin,
-              s.sporadicMax
-            ],
-            (err) => {
-              if (err) {
-                logger.error(err)
-                return res.sendStatus(500)
-              }
-            })
-          })
         })
-        return res.sendStatus(200)
       })
+      return res.sendStatus(200)
     })
   })
 })
@@ -460,22 +460,22 @@ router.delete('/profiles/:profileId', (req, res) => {
       if (row.user.toString() !== req.user.id) {
         return res.sendStatus(401)
       }
+    })
 
-      db.run('DELETE FROM profiles WHERE id = ?', [req.params.profileId], (err) => {
-        if (err) {
-          logger.error(err)
-          return res.sendStatus(500)
-        }
-      })
+    db.run('DELETE FROM profiles WHERE id = ?', [req.params.profileId], (err) => {
+      if (err) {
+        logger.error(err)
+        return res.sendStatus(500)
+      }
+    })
 
-      db.run('DELETE FROM profiles_samples WHERE profile = ?', [req.params.profileId], (err) => {
-        if (err) {
-          logger.error(err)
-          return res.sendStatus(500)
-        } else {
-          return res.sendStatus(200)
-        }
-      })
+    db.run('DELETE FROM profiles_samples WHERE profile = ?', [req.params.profileId], (err) => {
+      if (err) {
+        logger.error(err)
+        return res.sendStatus(500)
+      } else {
+        return res.sendStatus(200)
+      }
     })
   })
 })

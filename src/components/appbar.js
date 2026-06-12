@@ -4,8 +4,7 @@ export default {
   data: () => ({
     drawyer: false,
     isAdmin: false,
-    loggedIn: false,
-    disableSecurity: false
+    loggedIn: false
   }),
   created () {
     this.getUserPreferences()
@@ -40,10 +39,6 @@ export default {
         })
         .catch(() => {
           this.isAdmin = false
-        })
-      this.$http.get('/config')
-        .then(response => {
-          this.disableSecurity = response.data.disableSecurity
         })
     },
     getUserPreferences () {
